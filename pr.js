@@ -13,10 +13,13 @@ const path_file = '/Users/antonmilienkov/Documents/Anton/cursach/JS_prof/profile
   const browser = await puppeteer.launch({headless: false});
   const page = await browser.newPage();
 
-  await page.goto('https://www.youtube.com/watch?v=jNQXAC9IVRw')
+  await page.goto('https://software-testing.ru/library/testing/general-testing/3056-testing-buttons')
+  await sleep(scrape_time * 2000);
+  await page.reload();
   var scrape_time, FPS, i, data_json, DrawFrames;
   scrape_time = 1;
   i = 0;
+  await sleep(scrape_time * 5000);
   while (i++ < 20) {
     await console.log(i);
     await fs.truncate(path_file, 0, function() {});
@@ -24,7 +27,12 @@ const path_file = '/Users/antonmilienkov/Documents/Anton/cursach/JS_prof/profile
       screenshots: false,
       categories: ['devtools.timeline']
      });
-    await sleep(scrape_time * 1000);
+
+    const buttonSelector = '#tpmod-left > div.moduletable_menu > div > ul > li.item6 > a > span';
+    await page.waitForSelector(buttonSelector)
+    page.click(buttonSelector);
+
+    await sleep(scrape_time * 2000);
     await page.tracing.stop();
 
     try {
@@ -38,14 +46,14 @@ const path_file = '/Users/antonmilienkov/Documents/Anton/cursach/JS_prof/profile
     for (args in data_json["traceEvents"]) {
       if (await args["name"] == "DrawFrame") {
         await ++DrawFrames;
-        await console.log(DrawFrames, '!!')
       }
     }
 
     FPS = await DrawFrames / scrape_time;
-    await console.log('FPS:', FPS);
     await console.log('FPS:', await DrawFrames / scrape_time);
 
   }
   await browser.close();
 })();
+
+
